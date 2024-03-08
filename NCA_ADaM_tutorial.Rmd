@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 Link to the [tutorial](https://cran.r-project.org/web/packages/admiral/vignettes/pk_adnca.html).
 
 ## Variable Names
+
 !["table"]("ADaM-variables.png")
 
 ## Read in Data
@@ -178,7 +179,132 @@ ex_dates <- ex %>%
   derive_vars_dtm_to_dt(exprs(AENDTM))
 ```
 
+### Discover the labels along with their abbrevitations
+
+```{r}
+
+df_list <- list("ADSL"=adsl, 
+                "EX"=ex, 
+                "LB"=lb, 
+                "PC"=pc)
+
+source("search_colname.R")
+```
+
+```{r}
+search_colname(lb, ex, pc, adslaa)
+```
 
 
+## Expand dosing records
 
+### Nominal vs. actual time
+
+* The *nominal time* refers to the expected or planned time for an event or activity to occur. It is often an estimate or approximation based on a standard or average duration.
+* The *actual time* refers to the real or measured time that an event or activity takes to complete. It reflects the precise duration that occurred in practice. 
+* The difference between nominal and actual time can arise due to various factors such as unforeseen delays, variations in performance, or external influences.
+
+### The functiom `create_single_dose_dataset()`
+
+The function create_single_dose_dataset() can be used to expand dosing records between the start date and end date. The nominal time will also be expanded based on the values of EXDOSFRQ, for example “QD” will result in nominal time being incremented by 24 hours and “BID” will result in nominal time being incremented by 12 hours. This is a new feature of create_single_dose_dataset().
+
+This function derives a dataset of single dose from aggregate dose information. This may be necessary when e.g. calculating last dose before an adverse event in ADAE or deriving a total dose parameter in ADEX when EXDOSFRQ != ONCE.
+
+Usage
+
+### The expansion
+
+The function splits each aggregate dose row into multiple rows, each representing a single dose. It calculates the number of completed dose periods between the start and end dates or datetimes and multiplies it by the dose count. For certain dose windows (e.g., "WEEK", "MONTH", "YEAR"), it uses a conversion factor to convert time units into days. Observations with dose frequency "ONCE" are copied unchanged to the output dataset.
+
+The output is the input dataset with each row representing a single dose.
+
+
+In the input dataset, the doses are represented by several variables:
+
+EXDOSFRQ: This variable denotes the dose frequency, indicating how often the medication is administered (e.g., "QD" for once daily, "Q2D" for every 2 days, "EVERY 2 WEEKS", etc.).
+EXSTDTC: This variable represents the start date of each dose.
+EXSTDTM: This variable represents the start date and time of each dose.
+EXENDTC: This variable represents the end date of each dose.
+EXENDTM: This variable represents the end date and time of each dose.
+EXTRT: This variable represents the name of the treatment administered.
+EXDOSE: This variable represents the dose amount administered.
+EXDOSU: This variable represents the unit of the dose amount.
+
+These variables provide information about the dosing regimen, including frequency, timing, duration, treatment name, and dose amount. 
+
+The create_single_dose_dataset() function utilizes this information to create a dataset with each row representing a single dose.
+
+```{r}
+# ---- Expand dosing records between start and end dates ----
+
+ex_exp <- ex_dates %>%
+  create_single_dose_dataset(
+    dose_freq = EXDOSFRQ,
+    start_date = ASTDT,
+    start_datetime = ASTDTM,
+    end_date = AENDT,
+    end_datetime = AENDTM,
+    nominal_time = NFRLT,
+    lookup_table = dose_freq_lookup,
+    lookup_column = CDISC_VALUE,
+    keep_source_vars = exprs(
+      STUDYID, USUBJID, EVID, EXDOSFRQ, EXDOSFRM,
+      NFRLT, EXDOSE, EXDOSU, EXTRT, ASTDT, ASTDTM, AENDT, AENDTM,
+      VISIT, VISITNUM, VISITDY, TRT01A, TRT01P, DOMAIN, EXSEQ, !!!adsl_vars
+    )
+  ) %>%
+  # Derive AVISIT based on nominal relative time
+  # Derive AVISITN to nominal time in whole days using integer division
+  # Define AVISIT based on nominal day
+  mutate(
+    AVISITN = NFRLT %/% 24 + 1,
+    AVISIT = paste("Day", AVISITN),
+    ADTM = ASTDTM,
+    DRUG = EXTRT,
+  ) %>%
+  # Derive dates and times from datetimes
+  derive_vars_dtm_to_dt(exprs(ADTM)) %>%
+  derive_vars_dtm_to_tm(exprs(ADTM)) %>%
+  derive_vars_dtm_to_tm(exprs(ASTDTM)) %>%
+  derive_vars_dtm_to_tm(exprs(AENDTM)) %>%
+  derive_vars_dy(reference_date = TRTSDT, source_vars = exprs(ADT))
+```
+
+To visualize what this function does we can compare th number of rows for subject id 01-701-1028
+
+```{r}
+dummy.id <- "01-701-1028"
+ex_dates %>% filter(USUBJID == dummy.id)
+```
+```{r}
+ex_exp %>% filter(USUBJID == dummy.id)
+```
+
+
+## Find First Dose
+
+In this section we will find the first dose for each subject and drug, using derive_vars_merged(). We also create an analysis visit (AVISIT) based on NFRLT. The first dose datetime for an analyte FANLDTM is calculated as the minimum ADTM from the dosing records by subject and drug.
+
+```{r}
+# ---- Find first dose per treatment per subject ----
+# ---- Join with ADPC data and keep only subjects with dosing ----
+
+adpc_first_dose <- pc_dates %>%
+  derive_vars_merged(
+    dataset_add = ex_exp,
+    filter_add = (EXDOSE > 0 & !is.na(ADTM)),
+    new_vars = exprs(FANLDTM = ADTM),
+    order = exprs(ADTM, EXSEQ),
+    mode = "first",
+    by_vars = exprs(STUDYID, USUBJID, DRUG)
+  ) %>%
+  filter(!is.na(FANLDTM)) %>%
+  # Derive AVISIT based on nominal relative time
+  # Derive AVISITN to nominal time in whole days using integer division
+  # Define AVISIT based on nominal day
+  mutate(
+    AVISITN = NFRLT %/% 24 + 1,
+    AVISIT = paste("Day", AVISITN)
+  )
+```
 
