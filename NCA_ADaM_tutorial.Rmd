@@ -1,0 +1,184 @@
+---
+title: "Creating a PK NCA or Population PK ADaM"
+author: "Pascal Bärschi"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Programming Workflow
+
+Link to the [tutorial](https://cran.r-project.org/web/packages/admiral/vignettes/pk_adnca.html).
+
+## Variable Names
+!["table"]("ADaM-variables.png")
+
+## Read in Data
+```{r}
+# load libs
+library(dplyr, warn.conflicts = FALSE)
+library(admiral)
+library(pharmaversesdtm)
+library(lubridate)
+library(stringr)
+library(tibble)
+
+
+# load dfs
+
+data("admiral_adsl")
+data("ex")
+data("pc")
+data("vs")
+data("lb")
+
+
+# prepare data
+
+adsl <- admiral_adsl
+ex <- convert_blanks_to_na(ex)
+
+# Load PC
+pc <- convert_blanks_to_na(pc)
+
+# Load VS for baseline height and weight
+
+vs <- convert_blanks_to_na(vs)
+
+# Load LB for baseline lab values
+
+lb <- convert_blanks_to_na(lb) %>%
+  filter(LBBLFL == "Y")
+
+# we can extract the label of a dataframe like this: 
+attr(lb$LBBLFL, "label")
+
+# ---- Lookup tables ----
+param_lookup <- tibble::tribble(
+  ~PCTESTCD, ~PARAMCD, ~PARAM, ~PARAMN,
+  "XAN", "XAN", "Pharmacokinetic concentration of Xanomeline", 1,
+  "DOSE", "DOSE", "Xanomeline Patch Dose", 2,
+)
+```
+
+### Difference between tribbles and tibbles
+
+* Tibble: A modern approach to data frames in R, provided by the tibble package. Tibbles are similar to data frames but with     some enhanced features and improved printing behavior.
+* Tribble: A function within the tibble package that allows you to create tibbles row-wise instead of column-wise. It's          particularly useful for creating small tibbles by entering data directly into R code.
+
+
+### What are expressions?
+
+Functions: `expr()` and `exprs()`
+In R, an expression is a set of symbols that can be evaluated to produce a value or perform some operation
+
+In the context of statistical modeling in R, expressions are often used to specify formulas for regression models, where the response variable and predictor variables are combined using operators like +, -, *, and :.
+
+Expressions can be manipulated, evaluated, and passed as arguments to functions in R, making them a powerful tool for programming and data analysis.
+
+```{r}
+print(expr(x + y))
+```
+
+
+```{r}
+print(exprs(x + y, x + z, y + z))
+```
+
+
+### Functions used to derive the analysis dates: 
+
+*derive_vars_merged():* new_vars: variables from the added data set that will be merged to the dataset, can also be renamed by for example expr(new_var1 = old_var1)
+*derive_var_dtm():* Ddds to new date/time analysis columns DTM and TMF where you can choose a prefix
+*derive_var_dtm_to_dt():* This function creates dates as output from datetime variables, adds column DT with prefix
+*derive_var_dtm_to_tm():* This function creates time variable(s) as output from datetime variable(s), adds column TM with prefix
+*derive_var_dtm_dy():* Adds relative day variables (--DY) to the dataset, e.g., ASTDY and AEND), adds column DY with prefix
+
+
+### Joining of `ADSL` to `PC` domain
+
+
+
+```{r}
+adsl_vars <- exprs(TRTSDT, TRTSDTM, TRT01P, TRT01A)
+
+pc_dates <- pc %>%
+  # Join ADSL with PC (need TRTSDT for ADY derivation)
+  derive_vars_merged(
+    dataset_add = adsl,
+    new_vars = adsl_vars,
+    by_vars = exprs(STUDYID, USUBJID)
+  ) %>%
+  # Derive analysis date/time
+  # Impute missing time to 00:00:00 
+  derive_vars_dtm(
+    new_vars_prefix = "A",
+    dtc = PCDTC,
+    time_imputation = "00:00:00"
+  ) %>%
+  # Derive dates and times from date/times
+  derive_vars_dtm_to_dt(exprs(ADTM)) %>%
+  derive_vars_dtm_to_tm(exprs(ADTM)) %>%
+  derive_vars_dy(reference_date = TRTSDT, # refers to derive_vars_dt to impute and derive a date from a date character
+                 source_vars = exprs(ADT) # source variable
+                 ) %>%
+  # Derive event ID and nominal relative time from first dose (NFRLT)
+  mutate(
+    EVID = 0,
+    DRUG = PCTEST,
+    NFRLT = if_else(PCTPTNUM < 0, 0, PCTPTNUM), .after = USUBJID
+  )
+```
+
+### Joining of `ADSL` to `EX` domain
+
+* Creation of  NFRLT for EX data based on VISITDY using the formula (VISITDY - 1) * 24 using dplyr::mutate.
+* Use of case_when(): set of conditions, where last one is the fallback condition of no condition applying. I.e., if AENDTM is NA,  the value is ASTDTM and if not it's AENDTM
+
+```{r}
+# ---- Get dosing information ----
+
+ex_dates <- ex %>%
+  derive_vars_merged(
+    dataset_add = adsl,
+    new_vars = adsl_vars,
+    by_vars = exprs(STUDYID, USUBJID)
+  ) %>%
+  # Keep records with nonzero dose
+  filter(EXDOSE > 0) %>%
+  # Add time and set missing end date to start date
+  # Impute missing time to 00:00:00
+  # Note all times are missing for dosing records in this example data
+  # Derive Analysis Start and End Dates
+  derive_vars_dtm(
+    new_vars_prefix = "AST",
+    dtc = EXSTDTC,
+    time_imputation = "00:00:00"
+  ) %>%
+  derive_vars_dtm(
+    new_vars_prefix = "AEN",
+    dtc = EXENDTC,
+    time_imputation = "00:00:00"
+  ) %>%
+  # Derive event ID and nominal relative time from first dose (NFRLT)
+  mutate(
+    EVID = 1,
+    NFRLT = 24 * (VISITDY - 1), .after = USUBJID
+  ) %>%
+  # Set missing end dates to start date
+  mutate(AENDTM = case_when(
+    is.na(AENDTM) ~ ASTDTM,
+    TRUE ~ AENDTM
+  )) %>%
+  # Derive dates from date/times
+  derive_vars_dtm_to_dt(exprs(ASTDTM)) %>%
+  derive_vars_dtm_to_dt(exprs(AENDTM))
+```
+
+
+
+
+
