@@ -189,6 +189,7 @@ df_list <- list("ADSL"=adsl,
                 "PC"=pc)
 
 source("search_colname.R")
+
 ```
 
 ```{r}
@@ -308,3 +309,9 @@ adpc_first_dose <- pc_dates %>%
   )
 ```
 
+
+## Find Reference Dose Dates Corresponding to PK Records
+
+### Use of `derive_vars_joined()`
+
+Finds the previous dose data. This will join the expanded EX data with the ADPC based on the analysis date ADTM.
