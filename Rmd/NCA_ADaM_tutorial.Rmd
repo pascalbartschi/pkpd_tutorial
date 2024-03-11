@@ -642,6 +642,124 @@ adpc_dtype <- bind_rows(adpc_aval, dtype) %>%
 ```
 
 
+## Calculate the change from abselin and assign ASEQ
+
+In addition to numerous variable derivations, we  also derive PARAM and PARAMN from a lookup table.
+
+### Functions: `derive_var_base`, `derive_var_chg`, `derive_var_obs_number`
+
+* derive_var_base: Derive baseline variables, e.g. BASE or BNRIND, in a BDS dataset. Note: This is a wrapper function for the more generic derive_vars_merged().
+* derive_var_chg: Derive change from baseline (CHG) in a BDS dataset
+* derive_var_obs_number: derives ASEQ, so adds a variable numbering the observations within each by group
+
+### Derivation
+
+```{r}
+# ---- Derive BASE and Calculate Change from Baseline ----
+
+adpc_base <- adpc_dtype %>%
+  # Derive BASE
+  derive_var_base(
+    by_vars = exprs(STUDYID, USUBJID, PARAMCD, BASETYPE),
+    source_var = AVAL,
+    new_var = BASE,
+    filter = ABLFL == "Y"
+  )
+
+adpc_chg <- derive_var_chg(adpc_base)
+
+# ---- Add ASEQ ----
+
+adpc_aseq <- adpc_chg %>%
+  # Calculate ASEQ
+  derive_var_obs_number(
+    new_var = ASEQ,
+    by_vars = exprs(STUDYID, USUBJID),
+    order = exprs(ADTM, BASETYPE, EVID, AVISITN, ATPTN, DTYPE),
+    check_type = "error"
+  ) %>%
+  # Remove temporary variables
+  select(
+    -DOMAIN, -PCSEQ, -starts_with("orig"), -starts_with("min"),
+    -starts_with("max"), -starts_with("EX"), -ends_with("next"),
+    -ends_with("prev"), -DRUG, -EVID, -AXRLT, -NXRLT, -VISITDY
+  ) %>%
+  # Derive PARAM and PARAMN
+  derive_vars_merged(
+    dataset_add = select(param_lookup, -PCTESTCD), by_vars = exprs(PARAMCD)
+  )
+```
+
+## Add additional baselines variables
+
+Here we derive additional baseline values from VS for baseline height HTBL and weight WTBL and compute the body mass index (BMI) with compute_bmi(). Availabel form ADVSor derived from LB or ADLB.
+
+```{r}
+# Derive additional baselines from VS
+adpc_baselines <- adpc_aseq %>%
+  derive_vars_merged(
+    dataset_add = vs,
+    filter_add = VSTESTCD == "HEIGHT",
+    by_vars = exprs(STUDYID, USUBJID),
+    new_vars = exprs(HTBL = VSSTRESN, HTBLU = VSSTRESU)
+  ) %>%
+  derive_vars_merged(
+    dataset_add = vs,
+    filter_add = VSTESTCD == "WEIGHT" & VSBLFL == "Y",
+    by_vars = exprs(STUDYID, USUBJID),
+    new_vars = exprs(WTBL = VSSTRESN, WTBLU = VSSTRESU)
+  ) %>%
+  mutate(
+    BMIBL = compute_bmi(height = HTBL, weight = WTBL),
+    BMIBLU = "kg/m^2"
+  )
+```
+
+## Add the ADSL variables
+
+### Use of the bang (!) terminology
+
+* !: The single bang operator negates a logical value or converts a value to a logical value and then negates it. For example, !TRUE evaluates to FALSE, and !FALSE evaluates to TRUE.
+
+* !!: The double bang operator, or unquote operator, is used for unquoting an expression within a quoted context. It allows you to take a variable that contains an expression and evaluate it in the current context.
+
+E.g. 
+
+```{r}
+# Example input
+x <- 10
+y <- "x"
+
+# Example usage of !! to unquote
+!!y
+```
+
+
+
+* !!!: The triple bang operator is used to splice (or unquote-splice) a list of arguments into a function call. It is used when you have a list of arguments that you want to pass to a function that accepts variable arguments.
+
+```{r}
+# Define a list of variables
+vars_list <- list("var1", "var2", "var3")
+
+# Using !!! to pass the list elements as separate arguments
+result <- my_function(!!!vars_list)
+```
+
+### negate_vars
+
+Function that adds a minus sign in front of all given variables
+
+```{r}
+# Add all ADSL variables
+adpc <- adpc_baselines %>%
+  derive_vars_merged(
+    dataset_add = select(adsl, !!!negate_vars(adsl_vars)),
+    by_vars = exprs(STUDYID, USUBJID)
+  )
+```
+
+
 
 
 
