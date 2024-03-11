@@ -7,11 +7,14 @@ extract_label_col <- function(df, colname) attr(df[[colname]], "label")
 extract_all_labels_df <- function(df) setNames(lapply(names(df), function(colname) extract_label_col(df, colname)), 
                                                names(df))
 
-# extracts all labels from a df list, list at highest level with have df names
-labels_from_dflist <- function(dflist) setNames(lapply(dflist, extract_all_labels_df), names(dflist))
+# extract all the labels from a given dataframes with hierarchical list structure
+labels_from_dfs <- function(...) setNames(lapply(list(...), extract_all_labels_df), names(dflist))
 
-# serach a label in a list of variable number of dfs
+# does the same as labels from df but returns a flattened list
+labels_from_dfs_flat <- function(...) list(unlist(lapply(list(...), extract_all_labels_df)))
 
+
+# after providing dataframes to search user is prompted for a labelname
 search_colname <- function(...){
   colname <- toupper(readline("Enter the colname: "))
   tryCatch({

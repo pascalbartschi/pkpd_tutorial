@@ -15,7 +15,7 @@ Link to the [tutorial](https://cran.r-project.org/web/packages/admiral/vignettes
 
 ## Variable Names
 
-!["table"]("ADaM-variables.png")
+![table](ADaM-variables.png)
 
 ## Read in Data
 ```{r}
@@ -188,12 +188,12 @@ df_list <- list("ADSL"=adsl,
                 "LB"=lb, 
                 "PC"=pc)
 
-source("search_colname.R")
+source("../R/search_colname.R")
 
 ```
 
 ```{r}
-search_colname(lb, ex, pc, adslaa)
+# search_colname(lb, ex, pc, adslaa)
 ```
 
 
@@ -315,3 +315,203 @@ adpc_first_dose <- pc_dates %>%
 ### Use of `derive_vars_joined()`
 
 Finds the previous dose data. This will join the expanded EX data with the ADPC based on the analysis date ADTM.
+
+### Differnce between derive_vars_merged and derived_vars_joined
+
+* derive_vars_merged:  Add new variable(s) to the input dataset based on variables from another dataset. The observations to merge can be selected by a condition (filter_add argument) and/or selecting the first or last observation for each by group (order and mode argument).
+
+* derive_vars_joined: The function adds variables from an additional dataset to the input dataset. The selection of the observations from the additional dataset can depend on variables from both datasets. For example, add the lowest value (nadir) before the current observation.
+
+
+### Find previous dose data
+
+*-> ADTM > ADTM.join*
+
+```{r}
+# ---- Find previous dose  ----
+
+adpc_prev <- adpc_first_dose %>%
+  derive_vars_joined(
+    dataset_add = ex_exp,
+    by_vars = exprs(USUBJID),
+    order = exprs(ADTM),
+    new_vars = exprs(
+      ADTM_prev = ADTM, EXDOSE_prev = EXDOSE, AVISIT_prev = AVISIT,
+      AENDTM_prev = AENDTM
+    ),
+    join_vars = exprs(ADTM),
+    join_type = "all",
+    filter_add = NULL,
+    filter_join = ADTM > ADTM.join,
+    mode = "last",
+    check_type = "none"
+  )
+```
+
+### Find the next dose data
+
+*-> ADTM <= ADTM.join*
+
+```{r}
+# ---- Find next dose  ----
+
+adpc_next <- adpc_prev %>%
+  derive_vars_joined(
+    dataset_add = ex_exp,
+    by_vars = exprs(USUBJID),
+    order = exprs(ADTM),
+    new_vars = exprs(
+      ADTM_next = ADTM, EXDOSE_next = EXDOSE, AVISIT_next = AVISIT,
+      AENDTM_next = AENDTM
+    ),
+    join_vars = exprs(ADTM),
+    join_type = "all",
+    filter_add = NULL,
+    filter_join = ADTM <= ADTM.join,
+    mode = "first",
+    check_type = "none"
+  )
+```
+
+### Find the previous and next nominal times
+
+We sort by the nominal times (order argument) and the finding is achieved with the filter join argument differing between relative nominal times.
+
+```{r}
+# ---- Find previous nominal time ----
+
+adpc_nom_prev <- adpc_next %>%
+  derive_vars_joined(
+    dataset_add = ex_exp,
+    by_vars = exprs(USUBJID),
+    order = exprs(NFRLT),
+    new_vars = exprs(NFRLT_prev = NFRLT),
+    join_vars = exprs(NFRLT),
+    join_type = "all",
+    filter_add = NULL,
+    filter_join = NFRLT > NFRLT.join,
+    mode = "last",
+    check_type = "none"
+  )
+
+# ---- Find next nominal time ----
+
+adpc_nom_next <- adpc_nom_prev %>%
+  derive_vars_joined(
+    dataset_add = ex_exp,
+    by_vars = exprs(USUBJID),
+    order = exprs(NFRLT),
+    new_vars = exprs(NFRLT_next = NFRLT),
+    join_vars = exprs(NFRLT),
+    join_type = "all",
+    filter_add = NULL,
+    filter_join = NFRLT <= NFRLT.join,
+    mode = "first",
+    check_type = "none"
+  )
+```
+
+## Combine PC and EX records and derive relative time variables
+
+By combining PC and EX records we can derive additional relative time variables. Both dosing and concetration information is kept here, but sometimes we see ADPC data with only the concentration records. If this is desired we can drop the dosing column before saving the final dataset. 
+
+### Use of the function `derive_vars_dutation`
+
+Derives duration between two dates, specified by the variables present in input dataset e.g., duration of adverse events, relative day, age, ...
+
+Calculates the actual relative time from from the first dose (AFRLT) and the actual relative time from the most recent dose (ARRLT). There is also a variable created that represents the actual time to next doese (AXRLT) to next dose.
+
+We also calculate the reference dates FANLDTM (First Datetime of Dose for Analyte) and PCRFTDTM (Reference Datetime of Dose for Analyte) and their corresponding date and time variables.
+
+### Combine ADPC and EX data
+
+```{r}
+# ---- Combine ADPC and EX data ----
+# Derive Relative Time Variables
+
+adpc_arrlt <- bind_rows(adpc_nom_next, ex_exp) %>%
+  group_by(USUBJID, DRUG) %>%
+  mutate(
+    FANLDTM = min(FANLDTM, na.rm = TRUE),
+    min_NFRLT = min(NFRLT_prev, na.rm = TRUE),
+    maxdate = max(ADT[EVID == 0], na.rm = TRUE), .after = USUBJID
+  ) %>%
+  arrange(USUBJID, ADTM) %>%
+  ungroup() %>%
+  filter(ADT <= maxdate) %>%
+  # Derive Actual Relative Time from First Dose (AFRLT)
+  derive_vars_duration(
+    new_var = AFRLT,
+    start_date = FANLDTM,
+    end_date = ADTM,
+    out_unit = "hours",
+    floor_in = FALSE,
+    add_one = FALSE
+  ) %>%
+  # Derive Actual Relative Time from Reference Dose (ARRLT)
+  derive_vars_duration(
+    new_var = ARRLT,
+    start_date = ADTM_prev,
+    end_date = ADTM,
+    out_unit = "hours",
+    floor_in = FALSE,
+    add_one = FALSE
+  ) %>%
+  # Derive Actual Relative Time from Next Dose (AXRLT not kept)
+  derive_vars_duration(
+    new_var = AXRLT,
+    start_date = ADTM_next,
+    end_date = ADTM,
+    out_unit = "hours",
+    floor_in = FALSE,
+    add_one = FALSE
+  ) %>%
+  mutate(
+    ARRLT = case_when(
+      EVID == 1 ~ 0,
+      is.na(ARRLT) ~ AXRLT,
+      TRUE ~ ARRLT
+    ),
+
+    # Derive Reference Dose Date
+    PCRFTDTM = case_when(
+      EVID == 1 ~ ADTM,
+      is.na(ADTM_prev) ~ ADTM_next,
+      TRUE ~ ADTM_prev
+    )
+  ) %>%
+  # Derive dates and times from datetimes
+  derive_vars_dtm_to_dt(exprs(FANLDTM)) %>%
+  derive_vars_dtm_to_tm(exprs(FANLDTM)) %>%
+  derive_vars_dtm_to_dt(exprs(PCRFTDTM)) %>%
+  derive_vars_dtm_to_tm(exprs(PCRFTDTM))
+
+```
+
+
+### Derive nominal relative times 
+
+We calculate NRRLT generally as NFRLT - NFRLT_prev and NXRLT as NFRLT - NFRLT_next.
+
+```{r}
+adpc_nrrlt <- adpc_arrlt %>%
+  # Derive Nominal Relative Time from Reference Dose (NRRLT)
+  mutate(
+    NRRLT = case_when(
+      EVID == 1 ~ 0,
+      is.na(NFRLT_prev) ~ NFRLT - min_NFRLT,
+      TRUE ~ NFRLT - NFRLT_prev
+    ),
+    NXRLT = case_when(
+      EVID == 1 ~ 0,
+      TRUE ~ NFRLT - NFRLT_next
+    )
+  )
+```
+
+
+
+
+
+
+
