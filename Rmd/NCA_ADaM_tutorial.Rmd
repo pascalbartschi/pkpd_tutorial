@@ -509,6 +509,137 @@ adpc_nrrlt <- adpc_arrlt %>%
   )
 ```
 
+## Derive Analysis variables
+
+* Using dplyr::mutate we derive a number of analysis variables including analysis value (AVAL), analysis time point (ATPT) analysis timepoint reference (ATPTREF) and baseline type (BASETYPE).
+* We set ATPT to PCTPT for concentration records and to “Dose” for dosing records. The analysis timepoint reference ATPTREF will correspond to the dosing visit. We will use AVISIT_prev and AVISIT_next to derive.
+*  The baseline type will be a concatenation of ATPTREF and “Baseline” with values such as “Day 1 Baseline”, “Day 2 Baseline”, etc. The baseline flag ABLFL will be set to “Y” for pre-dose records.
+*  Analysis value AVAL in this example comes from PCSTRESN for concentration records. In addition we are including the dose value EXDOSE for dosing records and setting BLQ (Below Limit of Quantitation) records to 0 before the first dose and to 1/2 of LLOQ (Lower Limit of Quantitation) for records after first dose. We also create a listing-ready variable AVALCAT1 which includes the “BLQ” record indicator and formats the numeric values to three significant digits.
+* We derive actual dose DOSEA based on EXDOSE_prev and EXDOSE_next and planned dose DOSEP based on the planned treatment TRT01P. In addition we add the units for the dose variables and the relative time variables.
+
+```{r}
+# ---- Derive Analysis Variables ----
+# Derive ATPTN, ATPT, ATPTREF, ABLFL and BASETYPE
+# Derive planned dose DOSEP, actual dose DOSEA and units
+# Derive PARAMCD and relative time units
+# Derive AVAL, AVALU and AVALCAT1
+
+adpc_aval <- adpc_nrrlt %>%
+  mutate(
+    ATPTN = case_when(
+      EVID == 1 ~ 0,
+      TRUE ~ PCTPTNUM
+    ),
+    ATPT = case_when(
+      EVID == 1 ~ "Dose",
+      TRUE ~ PCTPT
+    ),
+    ATPTREF = case_when(
+      EVID == 1 ~ AVISIT,
+      is.na(AVISIT_prev) ~ AVISIT_next,
+      TRUE ~ AVISIT_prev
+    ),
+    # Derive baseline flag for pre-dose records
+    ABLFL = case_when(
+      ATPT == "Pre-dose" ~ "Y",
+      TRUE ~ NA_character_
+    ),
+    # Derive BASETYPE
+    BASETYPE = paste(ATPTREF, "Baseline"),
+
+    # Derive Actual Dose
+    DOSEA = case_when(
+      EVID == 1 ~ EXDOSE,
+      is.na(EXDOSE_prev) ~ EXDOSE_next,
+      TRUE ~ EXDOSE_prev
+    ),
+    # Derive Planned Dose
+    DOSEP = case_when(
+      TRT01P == "Xanomeline High Dose" ~ 81,
+      TRT01P == "Xanomeline Low Dose" ~ 54
+    ),
+    DOSEU = "mg",
+  ) %>%
+  # Derive relative time units
+  mutate(
+    FRLTU = "h",
+    RRLTU = "h",
+    # Derive PARAMCD
+    PARAMCD = coalesce(PCTESTCD, "DOSE"),
+    ALLOQ = PCLLOQ,
+    # Derive AVAL
+    AVAL = case_when(
+      EVID == 1 ~ EXDOSE,
+      PCSTRESC == "<BLQ" & NFRLT == 0 ~ 0,
+      PCSTRESC == "<BLQ" & NFRLT > 0 ~ 0.5 * ALLOQ,
+      TRUE ~ PCSTRESN
+    ),
+    AVALU = case_when(
+      EVID == 1 ~ EXDOSU,
+      TRUE ~ PCSTRESU
+    ),
+    AVALCAT1 = if_else(PCSTRESC == "<BLQ", PCSTRESC, prettyNum(signif(AVAL, digits = 3))),
+  ) %>%
+  # Add SRCSEQ
+  mutate(
+    SRCDOM = DOMAIN,
+    SRCVAR = "SEQ",
+    SRCSEQ = coalesce(PCSEQ, EXSEQ)
+  )
+```
+
+
+# Create dublicated records for analysis
+
+* As mentioned above, the CDISC ADaM Implementation Guide for Non-compartmental Analysis uses duplicated records for analysis when a record needs to be used in more than one way. 24h post dose day x = predose day x+1
+* In general, we will select the records of interest and then update the relative time variables for the duplicated records. In this case we will select where the nominal relative time to next dose is zero
+* DTYPE is set to “COPY” for the duplicated records and the original PCSEQ value is retained. In this case we change “24h Post-dose” to “Pre-dose”. ABLFL is set to “Y” since these records will serve as baseline for the “Day 2” dose. DOSEA is set to EXDOSE_next and PCRFTDTM is set to ADTM_next.
+
+
+```{r}
+# ---- Create DTYPE copy records ----
+
+dtype <- adpc_aval %>%
+  filter(NFRLT > 0 & NXRLT == 0 & EVID == 0 & !is.na(AVISIT_next)) %>%
+  select(-PCRFTDT, -PCRFTTM) %>%
+  # Re-derive variables in for DTYPE copy records
+  mutate(
+    ABLFL = NA_character_,
+    ATPTREF = AVISIT_next,
+    ARRLT = AXRLT,
+    NRRLT = NXRLT,
+    PCRFTDTM = ADTM_next,
+    DOSEA = EXDOSE_next,
+    BASETYPE = paste(AVISIT_next, "Baseline"),
+    ATPT = "Pre-dose",
+    ATPTN = NFRLT,
+    ABLFL = "Y",
+    DTYPE = "COPY"
+  ) %>%
+  derive_vars_dtm_to_dt(exprs(PCRFTDTM)) %>%
+  derive_vars_dtm_to_tm(exprs(PCRFTDTM))
+```
+
+## Combine ADPC data with duplicated records
+
+Now the duplicated records are combined with the original records. We also derive the modified relative time from reference dose MRRLT. In this case, negative values of ARRLT are set to zero.
+
+### Analysis Flags
+
+This is also an opportunity to derive analysis flags e.g. ANL01FL , ANL02FL etc. In this example ANL01FL is set to “Y” for all records and ANL02FL is set to “Y” for all records except the duplicated records with DTYPE = “COPY”.
+
+```{r}
+# ---- Combine original records and DTYPE copy records ----
+
+adpc_dtype <- bind_rows(adpc_aval, dtype) %>%
+  arrange(STUDYID, USUBJID, BASETYPE, ADTM, NFRLT) %>%
+  mutate(
+    # Derive MRRLT, ANL01FL and ANL02FL
+    MRRLT = if_else(ARRLT < 0, 0, ARRLT),
+    ANL01FL = "Y",
+    ANL02FL = if_else(is.na(DTYPE), "Y", NA_character_),
+  )
+```
 
 
 
