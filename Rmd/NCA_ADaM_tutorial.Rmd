@@ -179,23 +179,6 @@ ex_dates <- ex %>%
   derive_vars_dtm_to_dt(exprs(AENDTM))
 ```
 
-### Discover the labels along with their abbrevitations
-
-```{r}
-
-df_list <- list("ADSL"=adsl, 
-                "EX"=ex, 
-                "LB"=lb, 
-                "PC"=pc)
-
-source("../R/search_colname.R")
-
-```
-
-```{r}
-# search_colname(lb, ex, pc, adslaa)
-```
-
 
 ## Expand dosing records
 
@@ -721,29 +704,20 @@ adpc_baselines <- adpc_aseq %>%
 
 * !: The single bang operator negates a logical value or converts a value to a logical value and then negates it. For example, !TRUE evaluates to FALSE, and !FALSE evaluates to TRUE.
 
-* !!: The double bang operator, or unquote operator, is used for unquoting an expression within a quoted context. It allows you to take a variable that contains an expression and evaluate it in the current context.
-
-E.g. 
-
-```{r}
-# Example input
-x <- 10
-y <- "x"
-
-# Example usage of !! to unquote
-!!y
-```
-
-
+* !! ?
 
 * !!!: The triple bang operator is used to splice (or unquote-splice) a list of arguments into a function call. It is used when you have a list of arguments that you want to pass to a function that accepts variable arguments.
 
 ```{r}
-# Define a list of variables
-vars_list <- list("var1", "var2", "var3")
-
-# Using !!! to pass the list elements as separate arguments
-result <- my_function(!!!vars_list)
+# # Define a list of variables
+# vars_list <- list("var1", "var2", "var3")
+# 
+# # my_function
+# 
+# my_function <- function(v1, v2, v3) print(paste(v1, v2, v3))
+# 
+# # Using !!! to pass the list elements as separate arguments
+# result <- my_function(!!!vars_list)
 ```
 
 ### negate_vars

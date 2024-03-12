@@ -15,6 +15,7 @@ labels_from_dfs_flat <- function(...) list(unlist(lapply(list(...), extract_all_
 
 
 # after providing dataframes to search user is prompted for a labelname
+# this is probably useless however
 search_colname <- function(...){
   colname <- toupper(readline("Enter the colname: "))
   tryCatch({
@@ -26,7 +27,7 @@ search_colname <- function(...){
     } else {
       warning("This column name is not present in any of the provided data frames.\nDebugging: Check spelling or provide more data frames.")
     }
-  }, 
+  },
   error = function(e) {
     warning("An error occurred:", conditionMessage(e))
   })
