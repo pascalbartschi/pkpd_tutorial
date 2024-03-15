@@ -1,0 +1,251 @@
+DATASET_TYPE,VARIABLE,Label,VARIABLE_UNIT,SOURCE,AdAM_Req
+ADPP,AAGE,Analysis Age,,"Predecessor: ADSL.AAGE
+",
+ADPP,AAGEU,Analysis Age Unit,,"Predecessor: ADSL.AAGEU
+",
+ADPP,ADT,Analysis Date,,"Set to the date portion of Event Start Date and Time
+[ADPP.ADTM].",
+ADPP,ADTM,Analysis Datetime,,"Set to the numeric SAS Datetime of the PP Date/Time
+of Parameter Calculations IS08601 character variable
+[PP.PPDTC]
+
+Missing Data Handling Rule:
+If the
+date part of  [PP.PPDTC] is partially or completely
+missing, no imputation is done.  
+If seconds portion of
+time is missing, then impute 00 for missing seconds.
+Otherwise no imputation is done",
+ADPP,ADY,Analysis Relative Day,,"Derived:
+Set to date part of the non-imputed
+Date/Time of Parameter Calculations  [PP.PPDTC]
+converted to a numeric date minus the date part of
+Datetime of First Exposure to Treatment
+[ADSL.TRTSDTM]. If the result is equal or greater
+than 0, one day is added. Possible values are .., -2, -1,
+1, 2, .. (no day zero is possible).
+Else set to null, if the
+day, month and/or year of  Start Date/Time
+[PP.PPDTC] is missing.",
+ADPP,AGE,Age,,"Predecessor: ADSL.AGE
+",Yes
+ADPP,AGEGR1,Pooled Age Group 1,,"Predecessor: ADSL.AGEGR1
+",
+ADPP,AGEGR2,Pooled Age Group 2,,"Predecessor: ADSL.AGEGR2
+",
+ADPP,AGEGR3,Pooled Age Group 3,,"Predecessor: ADSL.AGEGR3
+",
+ADPP,AGEU,Age Units,,"Predecessor: ADSL.AGEU
+",Yes
+ADPP,ANL01FL,"Analysis Flag 01 PK
+TLG flag",,"Set to 'Y' if uppercased Sponsor-Defined Identifier
+[PP.PPSPID] includes the phrases 'MAIN PK
+ANALYSIS' or 'INDIVIDUAL INCLUDE IN DES
+STATS'.  Otherwise set to 'N' if uppercased
+Sponsor-Defined Identifier [PP.PPSPID] includes the
+phrase 'INDIVIDUAL EXCLUDE FROM DES STATS'.
+(Y only For table,Y and N for listing)",
+ADPP,APERIOD,Period,,"Derived:
+Default Option 1:
+Set to PERIOD as
+defined for study.
+Option 2:
+Set to Period (N)
+[APERIOD] if available.
+Option 3:
+Set to 1.",
+ADPP,APERIODC,Period (C),,"Study specific: set to study specific character labeling
+of numeric period to which PK parameter / timepoint is
+corresponding to.",
+ADPP,ASEQ,"Analysis Sequence
+Number",,"Derived:
+
+Sequence number given to ensure
+uniqueness of subject records within an ADaM
+dataset. As long as values are unique within a subject
+within the dataset, any valid number can be used for
+ASEQ. ASEQ uniquely indexes records within a
+subject within an ADaM dataset.",
+ADPP,ATM,Analysis Time,,"Set to the time portion of Event Start Date and Time of
+trial medication [APPP.ADTM].",
+ADPP,ATPT,Analysis Timepoint,,"Default Option 1:
+Set to the fourth word in Group ID
+[PP.PPGRPID] delimited by dash (-) and comma (,).
+
+Option 2:
+Set to study-specific derivation if needed.",
+ADPP,ATPTN,Analysis Timepoint (N),,"Default Option 1:
+Set to missing. Numeric
+representation of ATPT.
+Option 2:
+Apply
+study-specifc numeric format to Analysis Timepoint
+[ADPP.ATPT]",
+ADPP,ATPTREF,"Analysis Timepont
+Reference",,"Default Option 1:
+Set to missing.
+Option 2:
+Set to
+study-specific derivation.",
+ADPP,AVAL,Analysis Value,,"Derived:
+Set to Numeric Result/Finding
+[PP.PPSTRESN]",
+ADPP,AVALC,Analysis Value (C),,"Derived:
+Set to Character Result/Finding
+[PP.PPSTRESC] if not missing.  Otherwise set to a
+character version of the Numeric Result/Finding
+[PP.PPSTRESN] in best format",
+ADPP,AVALU,Analysis Value Unit,,"Assigned:
+Set to Standard Units [PP.PPSTRESU]. If
+value is derived ensure unit is carried forward here.",
+ADPP,AVISIT,Analysis Visit,,"Default Option 1:
+Set to the third word in Group ID
+[PP.PPGRPID] delimited by dash (-) and comma (,).
+
+Option 2:
+Set to study-specific derivation if needed.",
+ADPP,AVISITN,Analysis Visit (N),,"Default Option 1:
+Set to missing. Numeric
+representation of AVISIT.
+Option 2:
+Apply
+study-specifc numeric format to Analysis Visit Window
+[ADPP.AVISIT]",
+ADPP,COUNTRY,Country,,"Predecessor: ADSL.COUNTRY
+",
+ADPP,DCUTDT,Date of Data Cut,,"Assigned:
+Set to Data Cutoff Date [DCUT.DCUTDTC]",
+ADPP,ETHNIC,Ethnicity,,Predecessor: ADSL.ETHNIC,
+ADPP,ITTFL,"Intent-To-Treat
+Population Flag",,"Predecessor: ADSL.ITTFL
+",
+ADPP,PARAM,Parameter,,"Assigned:
+Set to Parameter Name [PP.PPTEST]
+concatenated with [PP.PPSTRESU]. (OR AVALU ?)",Yes
+ADPP,PARAMCAT,Parameter Category,,Set to Parameter Category [PP.PPCAT],
+ADPP,PARAMCD,Parameter code,,"Assigned:
+Set to Parameter Short Name
+[PP.PPTESTCD] concatenated with [P.PPSTRESU].",Yes
+ADPP,PARMINT,Parameter Interval,,"Set to a concatenation of Parameter Code
+[ADPP.PARAMCD] and Analysis Timepoint
+[ADPP.ATPT].  Remove spaces.
+",
+ADPP,PPCAT,Parameter Category,,Predecessor: PP.PPCAT,
+ADPP,PPDTC,"Date/Time of
+Parameter
+Calculations",,Predecessor: PPDTC,
+ADPP,PPGRPID,Group ID,,Predecessor: PP.PPGRPID,
+ADPP,PPREASND,"Reason Parameter Not
+Calculated",,Predecessor: PPREASND,
+ADPP,PPROTFL,"Per-Protocol
+Population Flag",,"Predecessor: ADSL.PPROTFL
+",
+ADPP,PPSCAT,ParameterSubcategory,,Predecessor: PP.PPSCAT,
+ADPP,PPSEQ,Sequence Number,,Predecessor: PP.PPSEQ,
+ADPP,PPSPEC,"Specimen Material
+Type",,Predecessor: PP.PPSPEC,
+ADPP,PPSPID,"Sponsor-Defined
+Identifier",,Predecessor: PPSPID,
+ADPP,PPSTAT,Completion Status,,Predecessor: PPSTAT,
+ADPP,PPSTRESC,"Character
+Result/Finding in Std
+Format",,Predecessor: PPSTRESC,
+ADPP,PPSTRESN,"Numeric
+Result/Finding in
+Standard Units",,Predecessor: PPSTRESN,
+ADPP,PPSTRESU,Standard Units,,PPredecessor: PPSTRESU,
+ADPP,PPTEST,Parameter Name,,Predecessor: PPTEST,
+ADPP,PPTESTCD,"Parameter Short
+Name",,Predecessor: PPTESTCD,
+ADPP,RACE,Race,,"Predecessor: ADSL.RACE
+",Yes
+ADPP,REGION1,"Geographic Region
+Grouping 1",,"Predecessor: ADSL.REGION1
+",
+ADPP,SAFFL,Safety Population Flag,,"Predecessor: ADSL.SAFFL
+",
+ADPP,SEX,Sex,,"Predecessor: ADSL.SEX
+",Yes
+ADPP,SITEID,Study Site Identifier,,Predecessor: ADSL.SITEID,
+ADPP,STRATy,"Value of Randomized
+Stratum y",,"Predecessor: ADSL.STRATy
+",
+ADPP,STRATyNM,"Description of
+Randomized Stratum y",,"Predecessor: ADSL.STRATyNM
+",
+ADPP,STRATyV,"Value of Verified
+Stratum y",,"Predecessor: ADSL.STRATyV
+",
+ADPP,STUDYID,Study Identifier,,Predecessor: ADSL.STUDYID,Yes
+ADPP,SUBJID,"Subject Identifier for
+the Study",,Predecessor: ADSL.SUBJID,
+ADPP,TRT01A,"Actual Treatment for
+Period xx",,"Predecessor: ADSL.TRT01A
+",
+ADPP,TRT01P,"Planned Treatment for
+Period 01",,"Predecessor: ADSL.TRT01P
+",Yes
+ADPP,TRTEDT,"Date of Last Exposure
+to Treatment",,"Assigned:
+Set to date part of ADSL.TRTEDTM.",
+ADPP,TRTEDTM,"Datetime of Last
+Exposure to Treatment",,"Derived:
+Set to datetime of patients last exposure
+observation End Date/Time of Treatment
+[EX.EXENDTC] converted to numeric datetime when
+sorted in date/time order. Derivation only includes
+observations where patient received a valid dose (see
+NOTE) and datepart of End Date/Time of Treatment
+[EX.EXENDTC] is complete. If time is missing then
+impute completely missing time with 23:59:59, partially
+missing time with 23 for missing hours, 59 for missing
+minutes, 59 for missing seconds. 
+NOTE:  A valid
+dose is defined as (Dose per Administration
+[EX.EXDOSE] greater than 0 or (Dose per
+Administration[EX.EXDOSE] equal to 0 and Name of
+Actual Treatment [EX.EXTRT] contains 'PLACEBO' ))
+and (Dose Occurrence [EX.EXOCCUR] not equal to
+'N' or Dose Occurrence [EX.EXOCCUR] is not
+collected) and (Total Number of Pills Taken
+[EX.EXPILTK1...n] is not equal to '0' or Total Number
+of Pills Taken [EX.EXPILTK1...n] is not collected).",
+ADPP,TRTSDT,"Date of First Exposure
+to Treatment",,"Assigned:
+Set to date part of ADSL.TRTSDTM.",
+ADPP,TRTSDTM,"Datetime of First
+Exposure to Treatment",,"Derived:
+Set to datetime of patient's first exposure
+observation Start Date/Time of Treatment
+[EX.EXSTDTC] converted to numeric datetime when
+sorted in date/time order. Derivation only includes
+observations where patient received a valid dose (see
+NOTE) and datepart of Start Date/Time of Treatment
+[EX.EXSTDTC] is complete. If time is missing then
+impute completely missing time with 00:00:00, partially
+missing time with 00 for missing hours, 00 for missing
+minutes, 00 for missing seconds. 
+NOTE: A valid
+dose is defined as (Dose per Administration
+[EX.EXDOSE] greater than 0 or (Dose per
+Administration [EX.EXDOSE] equal to 0 and Name of
+Actual Treatment [EX.EXTRT] contains 'PLACEBO' ))
+and (Occurrence [EX.EXOCCUR] not equal to 'N' or
+Occurrence [EX.EXOCCUR] is not collected) and
+(Total Number of Pills Taken [EX.EXPILTK1...n] is not
+equal to '0' or Total Number of Pills Taken
+[EX.EXPILTK1...n] is not collected).",
+ADPP,TRTSEQA,"Actual Sequence of
+Treatments",,"Predecessor: ADSL.TRTSEQA
+",
+ADPP,TRTSEQP,"Planned Sequence of
+Treatments",,"Predecessor: ADSL.TRTSEQP
+",
+ADPP,TRTxxA,"Actual Treatment for
+Period xx",,"Predecessor: ADSL.TRTxxA
+",
+ADPP,TRTxxP,"Planned Treatment for
+Period xx",,"Predecessor: ADSL.TRTxxP
+",
+ADPP,USUBJID,"Unique Subject
+Identifier",,Predecessor: ADSL.USUBJID,Yes

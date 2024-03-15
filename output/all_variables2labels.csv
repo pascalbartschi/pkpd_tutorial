@@ -1,0 +1,411 @@
+"name","labels"
+"ARRLT","Actual Rel. Time from Ref. Dose"
+"AVALU","Analysis Value Unit"
+"NRRLT","Nominal Rel. Time from Ref. Dose"
+"PCRFTDT","Reference Date of Dose for Analyte"
+"PCRFTDTM","Reference Datetime of Dose for Analyte"
+"PCRFTTM","Reference Time of Dose for Analyte"
+"RRLTU","Rel. Time from Ref. Dose Unit"
+"ADOSEDUR","Actual Duration of Treatment Dose"
+"ALLOQ","Analysis Lower Limit of Quantitation"
+"DOSEFRQ","Dose Frequency"
+"DOSPCTDF","Percent Diff. Nominal vs. Actual Dose"
+"METABFL","Metabolite Flag"
+"NDOSEDUR","Nominal duration of Treatment Dose"
+"PCLLOQ","Lower Limit of Quantitation"
+"PCRFEDT","Reference End Date of Dose for Analyte"
+"PCRFEDTM","Ref. End Datetime of Dose for Analyte"
+"PCRFETM","Reference End Time of Dose for Analyte"
+"PCSEQ","Sequence Number"
+"PCSTRESC","Character Result/Finding in Std Format"
+"PCSTRESU","Standard Units"
+"SPWEIGHT","Specimen Weight Value"
+"SPWEIGHU","Specimen Weight Value Unit"
+"VOLUME","Volume Value"
+"VOLUMEU","Volume Value Unit"
+"ACYCLE","Analysis Cycle"
+"ACYCLEC","Analysis Cycle (C)"
+"AEFRLT","Act. Rel. End Time from First Dose"
+"AERRLT","Actual Rel. End Time from Ref. Dose"
+"AFRLT","Act. Rel. Time from Analyte First Dose"
+"COHORT","Subject Cohort"
+"COHORTN","Subject Cohort (N)"
+"DOSEDURU","Duration of Treatment Dose Units"
+"FANLDT","First Date of Dose for Analyte"
+"FANLDTM","First Datetime of Dose for Analyte"
+"FANLEDT","First End Date of Dose for Analyte"
+"FANLEDTM","First End Datetime of Dose for Analyte"
+"FANLETM","First End Time of Dose for Analyte"
+"FANLTM","First Time of Dose for Analyte"
+"FRLTU","Rel. Time from First Dose Unit"
+"MERRLT","Modified Rel. End Time from Ref. Dose"
+"MRRLT","Modified Rel. Time from Ref. Dose"
+"NCAwXRS","Reason w for PK NCA Exclusion"
+"NCAwXRSN","Reason for PK NCA Exclusion of w (N)"
+"NCAXFL","PK NCA Exclusion Flag"
+"NCAXFN","PK NCA Exclusion Flag (N)"
+"NEFRLT","Nom. Rel. End Time from First Dose"
+"NERRLT","Nominal Rel. End Time from Ref. Dose"
+"NFRLT","Nom. Rel. Time from Analyte First Dose"
+"PCGRPID","Group ID"
+"PCSPEC","Specimen Material Type"
+"PKSUMXF","PK Summary Exclusion Flag"
+"PKSUMXFN","PK Summary Exclusion Flag (N)"
+"ROUTE","Route"
+"TMPCTDF","Percent Diff. Nominal vs. Actual Time"
+"TRTRINT","Planned Treatment Interval"
+"TRTRINTU","Planned Treatment Interval Units"
+"DOSEA","Actual Treatment Dose"
+"DOSEU","Treatment Dose Units"
+"AVISIT","Analysis Visit"
+"STUDYID","Study Identifier"
+"USUBJID","Unique Subject Identifier"
+"SUBJID","Subject Identifier for the Study"
+"SITEID","Study Site Identifier"
+"AGE","Age"
+"AAGE","Analysis Age"
+"AGEU","Age Units"
+"SEX","Sex"
+"RACE","Race"
+"TRTP","Planned Treatment"
+"TRTPN","Planned Treatment (N)"
+"TRTA","Actual Treatment"
+"TRTAN","Actual Treatment (N)"
+"APERIOD","Period"
+"APERIODIC","Period (C)"
+"AVISITN","Analysis Visit (N)"
+"ADT","Analysis Date"
+"ATM","Analysis Time"
+"ADTM","Analysis Datetime"
+"ASTDT","Analysis Start Date"
+"ASTTM","Analysis Start Time"
+"ASTDTM","Analysis Start Datetime"
+"AENDT","Analysis End Date"
+"AENTM","Analysis End Time"
+"AENDTM","Analysis End Datetime"
+"ATPT","Analysis Timepoint"
+"ATPTN","Analysis Timepoint (N)"
+"PARAM","Parameter"
+"PARAMCD","Parameter Code"
+"PARAMN","Parameter (N)"
+"AVAL","Analysis Value"
+"DTYPE","Derivation Type"
+"BMIBL","Body Mass Index at Baseline"
+"BMIBLU","Body Mass Index at Baseline "
+"HTBL","Height at Baseline"
+"HTBLU","Height at Baseline Unit"
+"WTBL","Weight at Baseline"
+"WTBLU","Weight at Baseline Unit"
+"AGE","Age"
+"AGEU","Age Units"
+"ARELTM1","Analysis Rel. Actual
+Time from 1st Dose"
+"ARELTM2","Actual Rel. Time from
+Most Recent Dose"
+"ARELTM3","Act. Rel. Time from
+MRD-Neg. Imputed"
+"ARELTM4","Act. Rel. Time from
+MRD-Trough Predose"
+"ARELTM5","Act Rel. Time
+MRD-Neg Imp,Trough
+Predose"
+"ARELTM6","Act Rel. Time from
+MRD (Full Profile)"
+"ARELTM7","Act. Rel. Time from
+Most Recent Dose
+End"
+"ARELTM8","Act. Rel. Time MRDE
+(Trough Predose)"
+"ASMED","Matrix of Sample"
+"ASTYP","Analyte"
+"ATRTDUR",NA
+"AVAL","Analysis Value"
+"AVALC","Analysis Value (C)"
+"AVALU","Analysis Value Unit"
+"AVISIT","Analysis Visit"
+"AVISITN","Analysis Visit (N)"
+"BMI",NA
+"COHORT","Cohort"
+"DOSNO","Dose Number"
+"DRUG","Medication Name"
+"EVID","Event Id"
+"EVNTSDTM",NA
+"FEDSTATE","Fasted / Fed Status"
+"FRMUL","Treatment
+Formulation"
+"FULL_DAY","Ref Dose Visit w.r.t to
+a Full Profile"
+"HT",NA
+"IRELTM7","Imp Rel. Time from
+Most Recent Dose
+End"
+"IRELTM8","Imp Relative Time
+MRDE (Trough
+Predose)"
+"NRELTM1","Nominal Relative
+Time from First Dose"
+"NRELTM2","Nominal Time from
+Most Recent Dose"
+"NRELTM3","Nom Relative Time
+MRD (Neg Imputed)"
+"NRELTM4","Nom Relative Time
+MRD (Trough
+Predose)"
+"NRELTM5","Nom Rel. Time
+MRD-Neg Imp,Trough
+Predose"
+"NRELTM6","Nom Relative Time
+MRD (Full Profile)"
+"NRELTM7","Nom Rel. Time from
+MRD End"
+"NRELTM8","Nom Relative Time
+MRDE (Trough
+Predose)"
+"PARAM","Parameter"
+"PARAMCD","Parameter code"
+"PCDTC","Date/Time of
+Specimen Collection"
+"PCREFID","Reference ID"
+"PCSCHTEN",NA
+"PCTPT","Planned Time Point
+Name"
+"PCTPTNUM","Planned Time Point
+Number"
+"PCVOL",NA
+"PERIOD",NA
+"PTRTDUR",NA
+"RACE","Race"
+"RACEOTH",NA
+"RACESCAT",NA
+"RATE",NA
+"REGIMEN","Regimen of
+Medication"
+"RELTMU","Relative
+Actual/Nominal Time
+Units"
+"ROUTE","Route of Medication
+Administration"
+"SEX","Sex"
+"SITEID","Study Site Identifier"
+"STUDYID","Study Identifier"
+"SUBJID","Subject Identifier for
+the Study"
+"TAU","Time Span between
+Dosing Intervals"
+"TIMETXT","Time Text"
+"TRT01A","Actual Treatment for
+Period 01"
+"TRT01P","Planned Treatment for
+Period 01"
+"UACBGTM",NA
+"URBGTM",NA
+"URHTEN",NA
+"URTENDL",NA
+"USUBJID","Unique Subject
+Identifier"
+"VISIT","Visit Name"
+"VISITDY","Planned Study Day of
+Visit"
+"VISITNUM","Visit Number"
+"WT",NA
+"AAGE","Analysis Age"
+"AAGEU","Analysis Age Unit"
+"ADT","Analysis Date"
+"ADTM","Analysis Datetime"
+"ADY","Analysis Relative Day"
+"AGE","Age"
+"AGEGR1","Pooled Age Group 1"
+"AGEGR2","Pooled Age Group 2"
+"AGEGR3","Pooled Age Group 3"
+"AGEU","Age Units"
+"ANL01FL","Analysis Flag 01 PK
+TLG flag"
+"APERIOD","Period"
+"APERIODC","Period (C)"
+"ASEQ","Analysis Sequence
+Number"
+"ATM","Analysis Time"
+"ATPT","Analysis Timepoint"
+"ATPTN","Analysis Timepoint (N)"
+"ATPTREF","Analysis Timepont
+Reference"
+"AVAL","Analysis Value"
+"AVALC","Analysis Value (C)"
+"AVALU","Analysis Value Unit"
+"AVISIT","Analysis Visit"
+"AVISITN","Analysis Visit (N)"
+"COUNTRY","Country"
+"DCUTDT","Date of Data Cut"
+"ETHNIC","Ethnicity"
+"ITTFL","Intent-To-Treat
+Population Flag"
+"PARAM","Parameter"
+"PARAMCAT","Parameter Category"
+"PARAMCD","Parameter code"
+"PARMINT","Parameter Interval"
+"PPCAT","Parameter Category"
+"PPDTC","Date/Time of
+Parameter
+Calculations"
+"PPGRPID","Group ID"
+"PPREASND","Reason Parameter Not
+Calculated"
+"PPROTFL","Per-Protocol
+Population Flag"
+"PPSCAT","ParameterSubcategory"
+"PPSEQ","Sequence Number"
+"PPSPEC","Specimen Material
+Type"
+"PPSPID","Sponsor-Defined
+Identifier"
+"PPSTAT","Completion Status"
+"PPSTRESC","Character
+Result/Finding in Std
+Format"
+"PPSTRESN","Numeric
+Result/Finding in
+Standard Units"
+"PPSTRESU","Standard Units"
+"PPTEST","Parameter Name"
+"PPTESTCD","Parameter Short
+Name"
+"RACE","Race"
+"REGION1","Geographic Region
+Grouping 1"
+"SAFFL","Safety Population Flag"
+"SEX","Sex"
+"SITEID","Study Site Identifier"
+"STRATy","Value of Randomized
+Stratum y"
+"STRATyNM","Description of
+Randomized Stratum y"
+"STRATyV","Value of Verified
+Stratum y"
+"STUDYID","Study Identifier"
+"SUBJID","Subject Identifier for
+the Study"
+"TRT01A","Actual Treatment for
+Period xx"
+"TRT01P","Planned Treatment for
+Period 01"
+"TRTEDT","Date of Last Exposure
+to Treatment"
+"TRTEDTM","Datetime of Last
+Exposure to Treatment"
+"TRTSDT","Date of First Exposure
+to Treatment"
+"TRTSDTM","Datetime of First
+Exposure to Treatment"
+"TRTSEQA","Actual Sequence of
+Treatments"
+"TRTSEQP","Planned Sequence of
+Treatments"
+"TRTxxA","Actual Treatment for
+Period xx"
+"TRTxxP","Planned Treatment for
+Period xx"
+"USUBJID","Unique Subject
+Identifier"
+"NCA","2021-01-04"
+"NCA comment",NA
+"PREFFERED_TREATMENT",NA
+"ACTAMT_RO7223280","Actual Dose Amount
+RO7223280 (mg)"
+"ACTDOSE_RO7223280","Actual Dose
+RO7223280 (mg)"
+"AGE","Age (year)"
+"ARELTM1","Actual Time from First
+Dose (hr)"
+"ARELTM2","Actual Time from Most
+Recent Dose (hr)"
+"ARELTM3","Act Time MRD -Neg
+Imputed (hr)"
+"ARELTM4","Act Time MRD -Trough
+Predose (hr)"
+"ARELTM5","Act Time MRD Neg
+Imp Trough Predose
+(hr)"
+"ARELTM6","Act Time MRD -Full
+Profile (hr)"
+"ARELTM7","Actual Time from MRD
+End (hr)"
+"ARELTM8","Act Time MRDE
+-Trough Predose (hr)"
+"ASMED","Matrix"
+"ASTYP","Analyte"
+"ATRTDUR","Infusion Duration (hr)"
+"BMI","BMI (kg/m2)"
+"COHORT","Cohort"
+"DOSNO","Dose Number"
+"DRUG","Medication"
+"EVID","EVENT ID"
+"EVNTSDTM","Event Start Date and
+Time"
+"FEDSTATE","Fasted Fed Status"
+"FRMUL","Formulation"
+"FULL_DAY","Ref Dose Visit for Full
+Profile"
+"HT","Height (cm)"
+"IMPAMT_RO7223280","Imputed Dose Amount
+RO7223280 (mg)"
+"IRELTM7","Imp Time from Most
+Recent Dose End (hr)"
+"IRELTM8","Imp Time MRDE
+-Trough Predose (hr)"
+"NOMAMT_RO7223280","Nominal Dose Amount
+RO7223280 (mg)"
+"NOMDOSE_RO7223280","Nominal Dose
+RO7223280 (mg)"
+"NRELTM1","Nominal Time from
+First Dose (hr)"
+"NRELTM2","Nominal Time from
+Most Recent Dose (hr)"
+"NRELTM3","Nom Time MRD -Neg
+Imputed (hr)"
+"NRELTM4","Nom Time MRD
+-Trough Predose (hr)"
+"NRELTM5","Nom Time
+MRD-NegImp Trough
+Predose (hr)"
+"NRELTM6","Nom Time MRD -Full
+Profile (hr)"
+"NRELTM7","Nom Time from Most
+Recent Dose End (hr)"
+"NRELTM8","Nom Time MRDE
+-Trough Predose (hr)"
+"PCREFID","Reference ID"
+"PCSCHTEN","Scheduled Sampling
+Endtime"
+"PCVOL","Volume Of Urine
+Sampling (ml)"
+"PERIOD","Period"
+"PTRTDUR","Nominal Duration Of
+Infusion (hr)"
+"RACE","Race"
+"RACEOTH","Race Other"
+"RACESCAT","Race Subcategory"
+"RATE","Dose Rate (mg/hr)"
+"RAW_RO7223280","RAW Conc
+RO7223280 (ug/mL)"
+"REGIMEN","Regimen"
+"ROUTE","Route"
+"SEX","Sex"
+"SITEID","Site ID"
+"STUDYID","Study ID"
+"SUBJID","Subject ID"
+"TAU","TAU (hr)"
+"TIMETXT","Time Text"
+"TRT01A","Actual Trt Period 01"
+"TRT01P","Planned Trt Period 01"
+"UACBGTM","Act Sttime Of UrnSamp
+Rel To LstDose"
+"URBGTM","Nom Sttime Of
+UrnSamp Rel To Dose"
+"URHTEN","Nom Endtime Of
+UrnSamp Rel To Dose"
+"URTENDL","Act Edtime Of
+UrnSamp Rel To
+LstDos"
+"USUBJID","Unique Subject ID"
+"VISIT","Visit name"
+"WT","Weight (Kg)"

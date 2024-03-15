@@ -1,0 +1,298 @@
+---
+title: "TERN"
+author: "Pascal Bärschi"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# `g_lineplot`
+
+## read in data
+
+```{r}
+library(nestcolor)
+library(tern)
+
+
+adsl <- tern_ex_adsl
+adlb <- tern_ex_adlb %>% dplyr::filter(ANL01FL == "Y", PARAMCD == "ALT", AVISIT != "SCREENING")
+adlb$AVISIT <- droplevels(adlb$AVISIT)
+adlb <- dplyr::mutate(adlb, AVISIT = forcats::fct_reorder(AVISIT, AVISITN, min))
+```
+
+
+
+## Mean with CI
+```{r}
+g_lineplot(adlb, adsl, subtitle = "Laboratory Test:")
+```
+
+
+## Mean with CI, no stratification
+
+```{r}
+g_lineplot(adlb, variables = control_lineplot_vars(strata = NA))
+```
+
+
+
+## Mean, upper whisker of CI, no strata counts N
+
+```{r}
+g_lineplot(
+  adlb,
+  whiskers = "mean_ci_upr",
+  title = "Plot of Mean and Upper 95% Confidence Limit by Visit"
+)
+```
+
+
+
+## Median with CI
+
+```{r}
+g_lineplot(
+  adlb,
+  adsl,
+  mid = "median",
+  interval = "median_ci",
+  whiskers = c("median_ci_lwr", "median_ci_upr"),
+  title = "Plot of Median and 95% Confidence Limits by Visit"
+)
+```
+
+
+## Mean, +/- SD
+```{r}
+g_lineplot(adlb, adsl,
+  interval = "mean_sdi",
+  whiskers = c("mean_sdi_lwr", "mean_sdi_upr"),
+  title = "Plot of Median +/- SD by Visit"
+)
+```
+
+
+
+##  Mean with CI plot with stats table
+
+```{r}
+g_lineplot(adlb, adsl, table = c("n", "mean", "mean_ci"))
+```
+
+
+
+## Mean with CI, table and customized confidence level
+
+```{r}
+g_lineplot(
+  adlb,
+  adsl,
+  table = c("n", "mean", "mean_ci"),
+  control = control_analyze_vars(conf_level = 0.90),
+  title = "Plot of Mean and 80% Confidence Limits by Visit"
+)
+```
+
+
+## Mean with CI, table, filtered data
+
+```{r}
+adlb_f <- dplyr::filter(adlb, ARMCD != "ARM A" | AVISIT == "BASELINE")
+g_lineplot(adlb_f, table = c("n", "mean"))
+```
+```{r}
+#' create listing from a dataset
+#' @param df dataset to be displayed
+#' @param cols columns to be displayed
+#' @param index_col columns to be treated as index (label rows)
+#' @param formats format of each columns, if length is 1, this format applies to all
+#' column. otherwise length should be the same as cols.
+#' @param level integer indicating the depth. should not be touched by users.
+as_listing <- function(df, cols = NULL, index_col = NULL, formats = NULL, level = 1L) {
+  if (is.null(formats)) {
+    formats <- rep(list(NULL), length(cols))
+  }
+  nc <- length(cols)
+  if (nc == 0) {
+    stop("listing should have non-empty `cols` argument")
+  }
+  if (length(index_col) == 0) {
+    body <- lapply(seq_len(nrow(df)), function(i){
+      r <- df[i, cols, drop = FALSE]
+      cells <- Map(rcell, x = r, format = formats)
+      return(rrowl("", cells))
+    })
+    body <- unlist(body, recursive = FALSE)
+    header <- rrowl(NULL, var_label(df#, fill = TRUE
+    )[cols])
+    # why add this? I forgot. I remembered. to ensure that when there are multiple levels of columns,
+    # the columns will not be reorderd; in addition, the manual columns will not be combined.
+    #head <- lapply(seq_len(level), 
+    #  function(l) {
+    #    if (l == level) {
+    #      rrowl(NULL, var_label(df, fill = TRUE)[cols])
+    #    } else {
+    #      rrowl(NULL, rep(c(' ', '  '), nc)[seq_len(nc)])
+    #    }
+    #  }
+    #)
+    #.lst <- lapply(head, function(x) unlist(row_values(x)))
+    #fullcolinfo <- manual_cols(.lst = .lst)
+    #fullbusiness <- names(collect_leaves(coltree(fullcolinfo)))
+    #vals <- lapply(head, function(x) unlist(row_values(x)))
+    #cspans <- lapply(head, rtables:::row_cspans)
+    #repvals <- mapply(function(v, csp) rep(v, times = csp), v = vals, csp = cspans, SIMPLIFY = FALSE)
+    #wanted <- rtables:::paste_em_n(repvals, length(repvals))
+    #col_per_nc <- length(fullbusiness) / nc
+    #fullbusiness_split <- split(fullbusiness, rep(seq_len(nc), rep(col_per_nc, nc)))
+    #wantcols <- mapply(match, wanted, fullbusiness_split, USE.NAMES = FALSE) + seq(0, nc - 1) * col_per_nc 
+    #header <- rtables:::subset_cols(fullcolinfo, wantcols)
+    return(rtable(header = header, body))
+  } else {
+    findex <- index_col[1]
+    dfs <- split(df, df[[findex]], drop = TRUE)
+    dfs <- lapply(dfs, function(x){
+      var_label(x) <- var_label(df)
+      return(x)
+    })
+    tbls <- mapply(as_listing, df = dfs, MoreArgs = list(cols = cols, index_col = index_col[-1], formats = formats, level = level + 1L))
+    colinfo <- tbls[[1]]@col_info
+    tbl_with_label <- lapply(names(tbls), function(nm) {
+      vtbl <- TableTree(
+        cont = ElementaryTable(kids = list(), name = nm, cinfo = colinfo),
+        labelrow = LabelRow(0L, nm, cinfo = colinfo),
+        kids = tbls[nm],
+        cinfo = colinfo
+      )
+    })
+    
+    ret <- TableTree(
+      kids = tbl_with_label,
+      cinfo = colinfo,
+      cont = ElementaryTable(kids = list(), name = "", cinfo = colinfo)
+    )
+    #top_left_text <- var_label(df, fill = TRUE)[index_col]
+    #top_left_indented <- sprintf("%s%s", stringr::str_dup("  ", seq_len(length(top_left_text)) - 1), top_left_text)
+    #top_left(ret) <- top_left_indented
+    return(ret)
+  }
+}
+```
+
+```{r}
+as_listing(adsl, cols = "STUDYID")
+```
+#  `analyize_vars_as_cols`
+
+## data preparation
+
+```{r}
+library(dplyr)
+library(tern)
+
+# Data preparation
+adpp <- tern_ex_adpp %>% h_pkparam_sort()
+
+lyt <- basic_table() %>%
+  split_rows_by(var = "STRATA1", label_pos = "topleft") %>%
+  split_rows_by(
+    var = "SEX",
+    label_pos = "topleft",
+    child_label = "hidden"
+  ) %>% # Removes duplicated labels
+  analyze_vars_in_cols(vars = "AGE")
+result <- build_table(lyt = lyt, df = adpp)
+result
+```
+
+## By selecting just some statistics and ad-hoc labels
+```{r}
+
+lyt <- basic_table() %>%
+  split_rows_by(var = "ARM", label_pos = "topleft") %>%
+  split_rows_by(
+    var = "SEX",
+    label_pos = "topleft",
+    child_labels = "hidden",
+    split_fun = drop_split_levels
+  ) %>%
+  analyze_vars_in_cols(
+    vars = "AGE",
+    .stats = c("n", "cv", "geom_mean"),
+    .labels = c(
+      n = "aN",
+      cv = "aCV",
+      geom_mean = "aGeomMean"
+    )
+  )
+result <- build_table(lyt = lyt, df = adpp)
+result
+
+```
+
+
+## Changing row labels
+
+```{r}
+# Changing row labels
+lyt <- basic_table() %>%
+  analyze_vars_in_cols(
+    vars = "AGE",
+    row_labels = "some custom label"
+  )
+result <- build_table(lyt, df = adpp)
+result
+```
+
+
+## Pharmacokinteric parameters
+
+```{r}
+# Pharmacokinetic parameters
+lyt <- basic_table() %>%
+  split_rows_by(
+    var = "TLG_DISPLAY",
+    split_label = "PK Parameter",
+    label_pos = "topleft",
+    child_label = "hidden"
+  ) %>%
+  analyze_vars_in_cols(
+    vars = "AVAL"
+  )
+result <- build_table(lyt, df = adpp)
+result
+```
+
+
+## Muliple calls (summarize labels and analyze underneath)
+
+```{r}
+# Multiple calls (summarize label and analyze underneath)
+lyt <- basic_table() %>%
+  split_rows_by(
+    var = "TLG_DISPLAY",
+    split_label = "PK Parameter",
+    label_pos = "topleft"
+  ) %>%
+  analyze_vars_in_cols(
+    vars = "AVAL",
+    do_summarize_row_groups = TRUE # does a summarize level
+  ) %>%
+  split_rows_by("SEX",
+    child_label = "hidden",
+    label_pos = "topleft"
+  ) %>%
+  analyze_vars_in_cols(
+    vars = "AVAL",
+    split_col_vars = FALSE # avoids re-splitting the columns
+  )
+result <- build_table(lyt, df = adpp)
+result
+```
+
+
+

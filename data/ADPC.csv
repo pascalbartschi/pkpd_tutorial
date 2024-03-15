@@ -1,0 +1,234 @@
+DATASET_TYPE,VARIABLE,VARIABLE_LABEL,VARIABLE_UNIT,VARIABLE_DEFINITION,SOURCE,AdAM_Req
+ADPC,AGE,Age,year,,"Predecessor: ADSL.AGE
+",Yes
+ADPC,AGEU,Age Units,,,"Predecessor: ADSL.AGEU
+",Yes
+ADPC,ARELTM1,"Analysis Rel. Actual
+Time from 1st Dose",hr,,"Set to actual time from first dose (ADPC.ADTM – ADPC.REFDTM1 )  i.e. elapsed time value relative to the start of the
+first dose 
+",
+ADPC,ARELTM2,"Actual Rel. Time from
+Most Recent Dose",hr,,"Set to actual time from the most recent dose [ADPC.ADTM - ADPC.REFDTM2] i.e. elapsed time value relative to the
+start of the most recent dose",
+ADPC,ARELTM3,"Act. Rel. Time from
+MRD-Neg. Imputed",hr,,"Set to actual time from most recent dose [ADPC.ARELTM2] if ARELTM2 > 0. Set to 0 where [ADPC.ARELTM2 < 0] is
+negative i.e. elapsed time value relative to the start of the most recent dose for predose samples is imputed to 0
+",
+ADPC,ARELTM4,"Act. Rel. Time from
+MRD-Trough Predose",hr,,"Set to actual time from most recent dose, where preceeding trough is considered predose [ADPC.ADTM -
+RELDTTM4]
+Notes: the value will be negative for pre-dose samples
+",
+ADPC,ARELTM5,"Act Rel. Time
+MRD-Neg Imp,Trough
+Predose",hr,,"Set to actual time from most recent dose where preceeding trough is considered predose [ADPC.ARELTM4]. Set to 0
+[ADPC.ARELTM4 < 0] i.e. negative predose is imputed to 0 
+
+",
+ADPC,ARELTM6,"Act Rel. Time from
+MRD (Full Profile)",hr,,"Set to the value of Actual Time From Most Recent Dose (Previous Trough Defined As Predose) [ADPC.ARELTM4]. If
+Sparse Record Flag [ADPC.SPARSEFL] equals 'Y' then set to Act Time MRD (Neg Imp, Trough Predose)
+[ADPC.ARELTM5] for full profile.",
+ADPC,ARELTM7,"Act. Rel. Time from
+Most Recent Dose
+End",hr,,"Set to actual time from the most recent dose end [ADPC.ADTM - ADPC.REFDTM4] i.e. elapsed time value relative to
+the end of the most recent dose",
+ADPC,ARELTM8,"Act. Rel. Time MRDE
+(Trough Predose)",hr,,"Set to actual time from most recent dose end [ADPC.ARELTM7], where preceeding trough is considered predose  [
+ADPC.ADTM - ADPC.REFDTM4]
+If Analysis Timepoint [ADPC.ATPT] contains 'PRE-DOSE' or 'PREDOSE' or starts
+with '0H' or '0 H, the difference is from the next dose and the value will be negative.
+",
+ADPC,ASMED,Matrix of Sample,,,Set to Specimen Material Type [PC.PCSPEC],
+ADPC,ASTYP,Analyte,,RO7223280,Set to Pharmacokinetic Test Name [PC.PCTEST],
+ADPC,ATRTDUR,,hr,,,
+ADPC,AVAL,Analysis Value,,,"Derived:
+Set to Numeric Result/Finding [PC.PCSTRESN] and BLQ/LTR results are handled as follows:
+For
+CRIT1F=1/3 imputation rule, [PC.PCSTRESC]=BLQ/LTR and pre-dose sample then AVAL=0 else For CRIT1F=1/3
+imputation rule, [PC.PCSTRESC]=BLQ/LTR and post-dose sample then AVAL=1/2(PCLLOQ).
+
+For CRIT1F=1/2
+imputation rule, [PC.PCSTRESC]=BLQ/LTR and pre-dose sample then AVAL=0 else For CRIT1F=1/2 imputation rule,
+[PC.PCSTRESC]=BLQ/LTR and post-dose sample then AVAL=1/2(PCLLOQ)
+
+For CRIT1F=1/2 imputation rule
+(Cmax dependent), [PC.PCSTRESC]=BLQ/LTR then AVAL=0 if BLQ/LTR occurs prior to cmax else AVAL is set to
+missing if BLQ/LTR occurs after cmax.
+ 
+For CRIT1F=All BLQ/LTR, [PC.PCSTRESC]=BLQ/LTR then AVAL=0
+
+",Yes
+ADPC,AVALC,Analysis Value (C),,,"Derived:
+Set to Character Result/Finding [PC.PCSTRESC] or else if [PC.PCSTRESC]=BLQ/LTR for pre-dose
+sample then [ADPC.AVALC]=BLQ_PRE or else if [PC.PCSTRESC]=BLQ/LTR for post-dose sample then
+[ADPC.AVALC]=BLQ_POST",Yes
+ADPC,AVALU,Analysis Value Unit,,,"Assigned:
+Set to Standard Units [PC.PCSTRESU]. If value is derived ensure unit is carried forward here.",Yes
+ADPC,AVISIT,Analysis Visit,,,"Derived:
+Option 1: (No visit windowing)
+Set to collected visit name [PC.VISIT]
+Option 2:  (User defined visit
+windows)",Yes
+ADPC,AVISITN,Analysis Visit (N),,,"Derived:
+Option 1: (No visit windowing)
+Set to collected visit number associated with Analysis Visit
+[ADPC.AVISIT]
+Option 2:  (User defined visit windows)
+Set to a user defined numeric value in accordance with the
+order of the visits",Yes
+ADPC,BMI,,kg/m  ,,,
+ADPC,COHORT,Cohort,,,"Default Option 1:
+Set to Planned Arm Code [ADSL.ARMCD]
+Option 2:
+Set to study specific derivation.",
+ADPC,DOSNO,Dose Number,,,"
+
+For PK concentration records: 
+Set to Dose Number i.e. the sequential integer value of dose, e.g. 1, 2, 3, …  for
+which the Start Date and Time [EX.EXSTDTC] of the dosing record is prior to or equal to the Event Start Date and
+Time [ADPC.ASTDTM] of the analyte record [EX.EXSTDTC <= ADPC.ASTDTM].  If the record is a pre-dose trough
+record with Nom Time MRD (Trough Predose) [ADPC.NRELTM4] and Act Time MRD (Trough Predose)
+[ADPC.ARELTM4] less than or equal to zero and not missing, then set to the Dose Number of the upcoming dose.",
+ADPC,DRUG,Medication Name,,RO7223280,"Set to Name of Actual Treatment [EX.EXTRT] for which the Start Date and Time [EX.EXSTDTC] of the dosing record
+is prior to or equal to the Event Start Date and Time [ADPC.ASTDTM] of the analyte record.  Else, If the record is a
+pre-dose trough record with Nom Time MRD (Trough Predose) [ADPC.NRELTM4] and Act Time MRD (Trough
+Predose) [ADPC.ARELTM4] less than or equal to zero and not missing, then set to the Medication Name of the
+upcoming dose.",
+ADPC,EVID,Event Id,,,Set to 0,
+ADPC,EVNTSDTM,,,,,
+ADPC,FEDSTATE,Fasted / Fed Status,,"not required - please do
+not populate",Set to Fasting Status [PC.PCFAST],
+ADPC,FRMUL,"Treatment
+Formulation",,,"Set to Dose Form [EX.EXDOSFRM] for which Start Date and Time [EX.EXSTDTC] of the dosing record is prior to or
+equal to the Event Start Date and Time [ADPC.ASTDTM] of the analyte record [EX.EXSTDTC <= ADPC.ASTDTM].  If
+the record is a pre-dose trough record with Nom Time MRD (Trough Predose) [ADPC.NRELTM4] and Act Time MRD
+(Trough Predose) [ADPC.ARELTM4] less than or equal to zero and not missing, then set to the Treatment
+Formulation of the upcoming dose.",
+ADPC,FULL_DAY,"Ref Dose Visit w.r.t to
+a Full Profile",,,"Set to the Visit [EX.VISIT] of the previous dosing record, unless sample is a PRE-DOSE sample (Time Text
+[ADPC.ATPT] and it contains 'PRE-DOSE' or 'PREDOSE' or starts with '0H' or '0 H') and Act Time MRD (Trough
+Predose) [ADPC.ARELTM4] less than or equal to zero and not missing.  If this is the case then set to Visit [EX.VISIT]
+of the dosing record about to occur.",
+ADPC,HT,,cm,,,
+ADPC,IRELTM7,"Imp Rel. Time from
+Most Recent Dose
+End",hr,,"Set to the Actual Relative Time from Most Recent Dose End              [ADPC.ARELTM7], if missing set to Nominal
+Relative Time from Most Recent Dose End [ADPC.NRELTM7]",
+ADPC,IRELTM8,"Imp Relative Time
+MRDE (Trough
+Predose)",hr,,"Set to theActual Relative Time MRDE (Trough Predose)             [ADPC.ARELTM8], if missing set to Nom Relative
+Time MRDE (Trough Predose) [ADPC.NRELTM8]",
+ADPC,NRELTM1,"Nominal Relative
+Time from First Dose",hr,,"
+Set to the nominal time from first dose in the unit of RELTMU.  This will be a study specific derivation.  In most
+cases it will be based on a combination of Planned Study Day of Visit [PC.VISITDY] and Planned Time Point Number
+[PC.PCTPTNUM].  In some cases it may need to be derived from Visit Name [PC.VISIT] and Planned Time Point
+Name [PC.PCTPT].  Care should be taken to ensure the values match the expected values of the study design,
+particularly for crossover designs.",
+ADPC,NRELTM2,"Nominal Time from
+Most Recent Dose",hr,,"Set to the difference between Nominal Time From First Dose [ADPC.NRELTM1] of the current record and the
+Nominal Time From First Dose [ADPC.NRELTM1] of the last record when a dose occurred.",
+ADPC,NRELTM3,"Nom Relative Time
+MRD (Neg Imputed)",hr,,"Set to the difference between Nominal Time From First Dose [ADPC.NRELTM1] of the current record and the
+Nominal Time From First Dose [ADPC.NRELTM1] of the last record when a dose occurred with negative values
+imputed to zero.",
+ADPC,NRELTM4,"Nom Relative Time
+MRD (Trough
+Predose)",hr,,"Set to the difference between the Nominal Time From First Dose [ADPC.NRELTM1] of the current record and the
+Nominal Time From First Dose [ADPC.NRELTM1] of the last or next record when a dose occurred.  If Analysis
+Timepoint [ADPC.ATPT] contains 'PRE-DOSE' or 'PREDOSE' or starts with '0H' or '0 H, the difference is from the
+next dose and the value will be negative.",
+ADPC,NRELTM5,"Nom Rel. Time
+MRD-Neg Imp,Trough
+Predose",hr,,"Set to the value of Nominal Time From Most Recent Dose (Previous Trough Defined As Predose) [ADPC.NRELTM4]
+with negative values imputed to zero.",
+ADPC,NRELTM6,"Nom Relative Time
+MRD (Full Profile)",hr,,"Set to the value of Nominal Time From Most Recent Dose (Previous Trough Defined As Predose) [ADPC.NRELTM4].
+If Sparse Record Flag [ADPC.SPARSEFL] equals 'Y' then set to Nom Time MRD (Neg Imputed) [APC.NRELTM5] for
+full profile.",
+ADPC,NRELTM7,"Nom Rel. Time from
+MRD End",hr,,"Set to the difference between Nominal Time From First Dose [ADPC.NRELTM1] of the current record and the
+Nominal Time From First Dose [ADPC.NRELTM1] minus the nominal Dosing time of the last record when a dose
+occurred.",
+ADPC,NRELTM8,"Nom Relative Time
+MRDE (Trough
+Predose)",hr,,"Set to the difference between Nominal Time From First Dose [ADPC.NRELTM1] of the current record and the
+Nominal Time From First Dose [ADPC.NRELTM1] minus the nominal Dosing time of the last record when a dose
+occurred.   If Analysis Timepoint [ADPC.ATPT] contains 'PRE-DOSE' or 'PREDOSE' or starts with '0H' or '0 H, the
+difference is from the next dose and the value will be negative, the difference is from the next dose and the value will
+be negative.",
+ADPC,PARAM,Parameter,,,"Assigned:
+Set to Pharmacokinetic Test Name [PC.PCTEST] concatenated with [PC.PCSTRESU].
+E.g.
+R05490255(ug/mL), Urine PK Concentration, Urine Volume",Yes
+ADPC,PARAMCD,Parameter code,,,"Assigned:
+Set to Pharmacokinetic Test Name [PC.PCTESTCD]",Yes
+ADPC,PCDTC,"Date/Time of
+Specimen Collection",,,Predecessor: PC.PCDTC,Yes
+ADPC,PCREFID,Reference ID,,,"Predecessor: PC.PCREFID
+
+",
+ADPC,PCSCHTEN,,,,,
+ADPC,PCTPT,"Planned Time Point
+Name",,,Predecessor: PC.PCTPT,Yes
+ADPC,PCTPTNUM,"Planned Time Point
+Number",,,Predecessor: PC.PCTPTNUM,Yes
+ADPC,PCVOL,,ml,,,
+ADPC,PERIOD,,,,,
+ADPC,PTRTDUR,,hr,,,
+ADPC,RACE,Race,,,"Predecessor: ADSL.RACE
+",Yes
+ADPC,RACEOTH,,,,,
+ADPC,RACESCAT,,,,,
+ADPC,RATE,,mg/hr,,,
+ADPC,REGIMEN,"Regimen of
+Medication",,,"Set to Dosing Frequency per Interval [EX.EXDOSFRQ] for which the Start Date and Time [EX.EXSTDTC] of the
+dosing record is prior to or equal to the Event Start Date and Time [ADPC.ASTDTM] of the analyte record
+[EX.EXSTDTC <= ADPC.ASTDTM]. If  Dosing Frequency per Interval [EX.EXDOSFRQ] is not available then use
+Intended Dose Regimen [EX.EXDOSRGM]  If the record is a pre-dose trough record with Nom Time MRD (Trough
+Predose) [ADPC.NRELTM4] and Act Time MRD (Trough Predose) [ADPC.ARELTM4] less than or equal to zero and
+not missing, then set to the Regimen of Medication of the upcoming dose.",
+ADPC,RELTMU,"Relative
+Actual/Nominal Time
+Units",,,"Default Option 1
+Set to 'hr'
+Option 2:
+Set to 'day'
+Time variables will be calculated in the units selected.",Yes
+ADPC,ROUTE,"Route of Medication
+Administration",,,"Set to Route of Administration [EX.EXROUTE] for which the Start Date and Time [EX.EXSTDTC] of the dosing record
+is prior to or equal to the Event Start Date and Time [ADPC.ASTDTM] of the analyte record [EX.EXSTDTC <=
+ADPC.ASTDTM].  If the record is a pre-dose trough record with Nom Time MRD (Trough Predose) [ADPC.NRELTM4]
+and Act Time MRD (Trough Predose) [ADPC.ARELTM4] less than or equal to zero and not missing, then set to the
+Route of Medication Administration of the upcoming dose.",
+ADPC,SEX,Sex,,,"Predecessor: ADSL.SEX
+",Yes
+ADPC,SITEID,Study Site Identifier,,,Predecessor: ADSL.SITEID,
+ADPC,STUDYID,Study Identifier,,,Predecessor: ADSL.STUDYID,Yes
+ADPC,SUBJID,"Subject Identifier for
+the Study",,,Predecessor: ADSL.SUBJID,
+ADPC,TAU,"Time Span between
+Dosing Intervals",hr,,"Set to numeric version of Dosing Frequency per Interval [EX.EXDOSFRQ] e.g. QD=24, BID=12, TID=8.  (See codelist
+C71113) In units of RELTMU.",
+ADPC,TIMETXT,Time Text,,,"Default Option 1
+Set to Planned time point name [PC.PCTPT]. 
+Option 2:
+Set to alternate time point variable.",
+ADPC,TRT01A,"Actual Treatment for
+Period 01",,,"Predecessor: ADSL.TRT01A
+",
+ADPC,TRT01P,"Planned Treatment for
+Period 01",,,"Predecessor: ADSL.TRT01P
+",Yes
+ADPC,UACBGTM,,,,,
+ADPC,URBGTM,,,,,
+ADPC,URHTEN,,,,,
+ADPC,URTENDL,,,,,
+ADPC,USUBJID,"Unique Subject
+Identifier",,,Predecessor: ADSL.USUBJID,Yes
+ADPC,VISIT,Visit Name,,,Predecessor: PC.VISIT,Yes
+ADPC,VISITDY,"Planned Study Day of
+Visit",,,Predecessor: PC.VISITDY,Yes
+ADPC,VISITNUM,Visit Number,,,Predecessor: PC.VISITNUM,Yes
+ADPC,WT,,Kg,,,

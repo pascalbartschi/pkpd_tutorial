@@ -93,7 +93,10 @@ print(exprs(x + y, x + z, y + z))
 ### Functions used to derive the analysis dates: 
 
 *derive_vars_merged():* new_vars: variables from the added data set that will be merged to the dataset, can also be renamed by for example expr(new_var1 = old_var1)
-*derive_var_dtm():* Ddds to new date/time analysis columns DTM and TMF where you can choose a prefix
+*derive_var_dtm():* Adds to new date/time analysis columns DTM and TMF where you can choose a prefix
+
+ The following transformations are only dateformatting: 
+ 
 *derive_var_dtm_to_dt():* This function creates dates as output from datetime variables, adds column DT with prefix
 *derive_var_dtm_to_tm():* This function creates time variable(s) as output from datetime variable(s), adds column TM with prefix
 *derive_var_dtm_dy():* Adds relative day variables (--DY) to the dataset, e.g., ASTDY and AEND), adds column DY with prefix
