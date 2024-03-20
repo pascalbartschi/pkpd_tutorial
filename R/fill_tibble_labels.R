@@ -1,7 +1,8 @@
 # For this code to work ADNCA_Guidelines.csv needs to be in the same working directory
 
 # This function add or replaces the label attribute of a given dataframe from a label_list/vector
-add_or_replace_labels <- function(data, label_list) {
+add_or_replace_labels <- function(data, 
+                                  label_list) {
   for (col_name in names(label_list)) {
     if (col_name %in% names(data)) {
       attr(data[[col_name]], "label") <- label_list[[col_name]]
@@ -14,7 +15,7 @@ read_labels <- function(path = "data"){
   
   labels <- lapply(list.files(path, pattern = "*.csv"), function(file) read.csv(file.path(path, file), na.strings = c("", "NA", "N/A")))
   
-  columns_to_select <- c("Variable.Name", "Variable.Label", "VARIABLE", "VARIABLE_LABEL", "Label")
+  columns_to_select <- c("Variable.Name", "Variable.Label", "VARIABLE", "VARIABLE_LABEL", "Label", "LABEL")
   
   lst <- lapply(labels, function(data) data %>% 
            filter(!any(is.na({{ columns_to_select }}))) %>% 
@@ -24,14 +25,19 @@ read_labels <- function(path = "data"){
   return(lst)
 }
 
+
 write_labels2csv <- function(filename = "output/all_variables2labels.csv"){
   labels <- read_labels()
+  
+  # Enclose labels in double quotes
+  labels_with_quotes <- sprintf('"%s"', labels)
+  
   write.csv(data.frame(name = names(labels), 
-                       labels = labels),
+                       labels = labels_with_quotes),
             file = filename, 
             row.names = FALSE)
-  
 }
+
 
 search_label <- function(var){
   tryCatch({
